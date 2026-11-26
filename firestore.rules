@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /workshops/{workspaceId}/vehicles/{vehicleId} {
+      // Base inicial: requiere usuario autenticado.
+      // Antes de usar con clientes reales, restringir workspaceId
+      // a los usuarios autorizados para ese taller.
+      allow read, write: if request.auth != null;
+    }
+  }
+}
