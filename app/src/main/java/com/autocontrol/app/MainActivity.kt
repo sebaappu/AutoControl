@@ -77,20 +77,19 @@ class MainActivity : ComponentActivity() {
 }
 
 private fun encodeVehicles(list: List<Vehicle>): String = JSONArray().apply {
-                    list.forEach { v -> put(JSONObject().apply {
-                        put("id", v.id); put("client", v.client); put("phone", v.phone)
-                        put("plate", v.plate); put("make", v.make); put("model", v.model)
-                        put("year", v.year); put("km", v.km)
-                        put("maintenances", JSONArray().apply {
-                            v.maintenances.forEach { m -> put(JSONObject().apply {
-                                put("id",m.id); put("type",m.type); put("doneKm",m.doneKm)
-                                put("doneDate",m.doneDate); put("dueKm",m.dueKm)
-                                put("dueDate",m.dueDate); put("notes",m.notes); put("cost",m.cost)
-                            }) }
-                        })
-                    }) }
-                }.toString()
-            }.toString()
+    list.forEach { v -> put(JSONObject().apply {
+        put("id", v.id); put("client", v.client); put("phone", v.phone)
+        put("plate", v.plate); put("make", v.make); put("model", v.model)
+        put("year", v.year); put("km", v.km)
+        put("maintenances", JSONArray().apply {
+            v.maintenances.forEach { m -> put(JSONObject().apply {
+                put("id",m.id); put("type",m.type); put("doneKm",m.doneKm)
+                put("doneDate",m.doneDate); put("dueKm",m.dueKm)
+                put("dueDate",m.dueDate); put("notes",m.notes); put("cost",m.cost)
+            }) }
+        })
+    }) }
+}.toString()
 
 internal fun loadVehicles(raw: String?): List<Vehicle> {
     if (raw.isNullOrBlank()) return emptyList()
