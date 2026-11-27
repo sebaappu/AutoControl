@@ -129,7 +129,7 @@ fun StatCard(label: String, value: String, modifier: Modifier = Modifier, color:
 @Composable
 fun VehicleCard(v: Vehicle, onClick: () -> Unit) {
     val color = when(v.status) { "VENCIDO" -> Color(0xFFB3261E); "PRÓXIMO" -> Color(0xFFB26A00); else -> Color(0xFF16845B) }
-    Card(Modifier.fillMaxWidth().clickable(onClick), shape = RoundedCornerShape(16.dp)) {
+    Card(Modifier.fillMaxWidth().clickable(onClick = onClick), shape = RoundedCornerShape(16.dp)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) { Text(v.client, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Ink); Text(v.model, color = Color.Gray, fontSize = 13.sp) }
