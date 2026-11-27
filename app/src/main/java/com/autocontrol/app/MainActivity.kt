@@ -44,10 +44,10 @@ data class Maintenance(
     val id: Long, val type: String, val doneKm: Int, val doneDate: String,
     val dueKm: Int, val dueDate: String, val notes: String, val cost: String
 ) {
-    val remaining: Int get() = if (dueKm > 0) dueKm - doneKm else Int.MAX_VALUE
-    val status: String get() = when {
-        dueKm > 0 && remaining <= 0 -> "VENCIDO"
-        dueKm > 0 && remaining <= 1000 -> "PRÓXIMO"
+    fun remainingAt(currentKm: Int): Int = if (dueKm > 0) dueKm - currentKm else Int.MAX_VALUE
+    fun statusAt(currentKm: Int): String = when {
+        dueKm > 0 && remainingAt(currentKm) <= 0 -> "VENCIDO"
+        dueKm > 0 && remainingAt(currentKm) <= 1000 -> "PRÓXIMO"
         else -> "AL DÍA"
     }
 }
@@ -58,7 +58,7 @@ data class Vehicle(
     val maintenances: List<Maintenance> = emptyList()
 ) {
     val displayModel: String get() = listOf(make, model, year).filter { it.isNotBlank() }.joinToString(" ")
-    val urgentCount: Int get() = maintenances.count { it.status != "AL DÍA" }
+    val urgentCount: Int get() = maintenances.count { it.statusAt(km) != "AL DÍA" }
 }
 
 class MainActivity : ComponentActivity() {
@@ -116,7 +116,7 @@ fun AutoControlApp(vehicles: List<Vehicle>, save: (List<Vehicle>) -> Unit) {
     var addMaintenanceFor by remember { mutableStateOf<Long?>(null) }
     val selected = vehicles.firstOrNull { it.id == selectedId }
     val allServices = vehicles.flatMap { v -> v.maintenances.map { v to it } }
-    val urgent = allServices.count { it.second.status != "AL DÍA" }
+    val urgent = allServices.count { it.second.statusAt(it.first.km) != "AL DÍA" }
     MaterialTheme(colorScheme = lightColorScheme(primary = Blue, background = Bg, surface = Color.White)) {
         Scaffold(
             topBar = { TopAppBar(title = { Column {
@@ -152,7 +152,7 @@ fun AutoControlApp(vehicles: List<Vehicle>, save: (List<Vehicle>) -> Unit) {
                         }
                         Spacer(Modifier.height(20.dp))
                         Text("Mantenimientos que requieren atención",fontWeight=FontWeight.Bold,fontSize=17.sp,color=Ink)
-                        val dueItems=allServices.filter{it.second.status!="AL DÍA"}.sortedBy{it.second.remaining}
+                        val dueItems=allServices.filter{it.second.statusAt(it.first.km)!="AL DÍA"}.sortedBy{it.second.remainingAt(it.first.km)}
                         if(dueItems.isEmpty()) EmptyState("Todo en orden","Los servicios próximos o vencidos aparecerán acá.")
                         else LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){items(dueItems){(v,m)->MaintenanceCard(v,m){selectedId=v.id}}}
                     }
@@ -206,12 +206,13 @@ fun VehicleCard(v:Vehicle,onClick:()->Unit){
 
 @Composable
 fun MaintenanceCard(v:Vehicle,m:Maintenance,onClick:()->Unit){
-    val color=when(m.status){"VENCIDO"->Color(0xFFB3261E);"PRÓXIMO"->Color(0xFFB26A00);else->Color(0xFF16845B)}
+    val status=m.statusAt(v.km); val remaining=m.remainingAt(v.km)
+    val color=when(status){"VENCIDO"->Color(0xFFB3261E);"PRÓXIMO"->Color(0xFFB26A00);else->Color(0xFF16845B)}
     Card(Modifier.fillMaxWidth().clickable(onClick=onClick),shape=RoundedCornerShape(14.dp)){
         Column(Modifier.padding(14.dp)){
-            Row(verticalAlignment=Alignment.CenterVertically){Text(m.type,fontWeight=FontWeight.Bold,color=Ink,modifier=Modifier.weight(1f));Text(m.status,color=color,fontSize=10.sp,fontWeight=FontWeight.ExtraBold)}
+            Row(verticalAlignment=Alignment.CenterVertically){Text(m.type,fontWeight=FontWeight.Bold,color=Ink,modifier=Modifier.weight(1f));Text(status,color=color,fontSize=10.sp,fontWeight=FontWeight.ExtraBold)}
             Text("${v.plate} · ${v.displayModel}",fontSize=12.sp,color=Color.Gray)
-            Text(if(m.dueKm>0) if(m.remaining<=0) "Vencido por ${-m.remaining} km" else "Próximo control en ${m.remaining} km" else "Trabajo registrado",fontSize=13.sp,color=color)
+            Text(if(m.dueKm>0) if(remaining<=0) "Vencido por ${-remaining} km" else "Próximo control en ${remaining} km" else "Trabajo registrado",fontSize=13.sp,color=color)
             if(m.dueDate.isNotBlank())Text("Próxima fecha: ${m.dueDate}",fontSize=12.sp,color=Color.Gray)
         }
     }
