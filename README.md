@@ -1,30 +1,17 @@
-# AutoControl - base Android
+# AutoControl
 
-Proyecto inicial Kotlin + Jetpack Compose + Firebase Authentication + Cloud Firestore.
+Aplicación Android para gestión básica de taller mecánico.
 
-## Qué incluye
-- Alta de cuenta e inicio de sesión por correo/contraseña.
-- Alta y listado de clientes/vehículos.
-- Datos guardados en Firestore y sincronizados en tiempo real entre teléfonos.
-- Datos de kilometraje y fecha objetivo del próximo cambio de correa.
-- Indicador de vencimiento por kilometraje y aviso visual cuando faltan 1.000 km.
+## Funciones de esta primera versión
+- Alta de clientes y vehículos.
+- Registro de patente, marca/modelo y kilometraje actual.
+- Control del kilometraje objetivo del próximo cambio de correa.
+- Alertas visuales: al día, próximo (1.000 km o menos) y vencido.
+- Actualización del kilometraje desde la ficha del vehículo.
+- Persistencia local en el teléfono.
 
-## Para abrirlo
-1. Instalá Android Studio (versión compatible con Android Gradle Plugin 8.9.2).
-2. Creá un proyecto Firebase en https://console.firebase.google.com/.
-3. Agregá una aplicación Android con el identificador `com.autocontrol.app`.
-4. Descargá `google-services.json` y copialo dentro de la carpeta `app/`.
-5. En Firebase Authentication, habilitá el proveedor Correo/contraseña.
-6. Creá una base Firestore y publicá las reglas de `firestore.rules`.
-7. Reemplazá `TALLER_CONFIGURAR_ID` en `VehicleRepository.kt` por un identificador privado del taller.
-8. Abrí el proyecto en Android Studio, sincronizá Gradle y ejecutá en un dispositivo.
+## Obtener el APK
+El workflow **Build AutoControl APK** compila automáticamente una versión de prueba cuando se actualiza la rama main. En GitHub: **Actions → Build AutoControl APK → último workflow → Artifacts → AutoControl-debug**.
 
-## Uso en dos teléfonos
-Creá una cuenta y usá exactamente el mismo correo y contraseña en ambos teléfonos. Ambos leerán y escribirán en la misma base del taller.
-
-## Importante antes de producción
-- Este es un punto de partida, no un APK terminado ni probado en un dispositivo.
-- Las reglas incluidas solo exigen autenticación: para producción hay que implementar membresía/invitaciones por taller y restringir cada workspace.
-- La app todavía no programa notificaciones locales. El siguiente paso es agregar WorkManager para avisos por fecha y una actualización de kilometraje para disparar alertas por km.
-- Los recordatorios por kilometraje dependen de que alguien actualice el odómetro cuando el auto vuelve al taller o el cliente informa el kilometraje.
-- No guardes datos reales de clientes hasta endurecer las reglas de seguridad.
+## Importante
+Esta primera versión guarda los datos localmente en el dispositivo. El inicio de sesión y la sincronización entre teléfonos mediante Firebase quedan pendientes de configurar con las credenciales del proyecto. No uses todavía datos reales de clientes en una versión de prueba.
