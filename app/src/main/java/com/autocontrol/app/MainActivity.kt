@@ -120,8 +120,8 @@ fun AutoControlApp(vehicles: List<Vehicle>, save: (List<Vehicle>) -> Unit) {
     MaterialTheme(colorScheme = lightColorScheme(primary = Blue, background = Bg, surface = Color.White)) {
         Scaffold(
             topBar = { TopAppBar(title = { Column {
-                Text("AUTOCONTROL", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
-                Text("GESTIÓN PROFESIONAL DE TALLER", fontSize = 10.sp, color = Color.Gray, letterSpacing = 1.sp)
+                Text("MECÁNICA CACHI", fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                Text("GESTIÓN INTEGRAL DEL TALLER", fontSize = 10.sp, color = Color.Gray, letterSpacing = 1.sp)
             } }, actions = { Text("● LOCAL", fontSize = 11.sp, color = Color(0xFF16845B), modifier = Modifier.padding(end=16.dp)) }) },
             bottomBar = { NavigationBar {
                 listOf("Inicio","Vehículos","Servicios").forEach { item ->
