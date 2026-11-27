@@ -69,7 +69,14 @@ class MainActivity : ComponentActivity() {
             var vehicles by remember { mutableStateOf(loadVehicles(prefs.getString("vehicles", null))) }
             fun save(list: List<Vehicle>) {
                 vehicles = list
-                prefs.edit().putString("vehicles", JSONArray().apply {
+                prefs.edit().putString("vehicles", encodeVehicles(list)).apply()
+            }
+            AutoControlApp(vehicles, ::save)
+        }
+    }
+}
+
+private fun encodeVehicles(list: List<Vehicle>): String = JSONArray().apply {
                     list.forEach { v -> put(JSONObject().apply {
                         put("id", v.id); put("client", v.client); put("phone", v.phone)
                         put("plate", v.plate); put("make", v.make); put("model", v.model)
@@ -82,14 +89,10 @@ class MainActivity : ComponentActivity() {
                             }) }
                         })
                     }) }
-                }.toString()).apply()
-            }
-            AutoControlApp(vehicles, ::save)
-        }
-    }
-}
+                }.toString()
+            }.toString()
 
-private fun loadVehicles(raw: String?): List<Vehicle> {
+internal fun loadVehicles(raw: String?): List<Vehicle> {
     if (raw.isNullOrBlank()) return emptyList()
     return try {
         val a = JSONArray(raw)
@@ -124,9 +127,9 @@ fun AutoControlApp(vehicles: List<Vehicle>, save: (List<Vehicle>) -> Unit) {
                 Text("GESTIÓN INTEGRAL DEL TALLER", fontSize = 10.sp, color = Color.Gray, letterSpacing = 1.sp)
             } }, actions = { Text("● LOCAL", fontSize = 11.sp, color = Color(0xFF16845B), modifier = Modifier.padding(end=16.dp)) }) },
             bottomBar = { NavigationBar {
-                listOf("Inicio","Vehículos","Servicios").forEach { item ->
+                listOf("Inicio","Vehículos","Servicios","Sincronizar").forEach { item ->
                     NavigationBarItem(selected=tab==item && selectedId==null, onClick={tab=item;selectedId=null},
-                        icon={ Text(when(item){"Inicio"->"⌂";"Vehículos"->"▣";else->"⚙"},fontSize=20.sp) },
+                        icon={ Text(when(item){"Inicio"->"⌂";"Vehículos"->"▣";"Servicios"->"⚙";else->"↔"},fontSize=20.sp) },
                         label={Text(item)})
                 }
             } },
@@ -163,6 +166,7 @@ fun AutoControlApp(vehicles: List<Vehicle>, save: (List<Vehicle>) -> Unit) {
                         if(vehicles.isEmpty()) EmptyState("Todavía no hay vehículos","Tocá + para cargar el primer cliente.")
                         else LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){items(vehicles.sortedBy{it.client.lowercase()}){VehicleCard(it){selectedId=it.id}}}
                     }
+                    tab=="Sincronizar" -> BluetoothSyncScreen(encodeVehicles(vehicles)) { incoming -> save(mergeVehicleData(vehicles, incoming)) }
                     else -> {
                         Text("Historial de servicios",fontSize=23.sp,fontWeight=FontWeight.Bold,color=Ink)
                         Text("Todos los trabajos registrados en el taller.",color=Color.Gray)
